@@ -380,7 +380,7 @@ struct FCLShapeCache
     }
   }
 
-  static const unsigned int MAX_CLEAN_COUNT = 100;  // every this many uses of the cache, a cleaning operation is
+  static const unsigned int MAX_CLEAN_COUNT = 0;    // every this many uses of the cache, a cleaning operation is
                                                     // executed (this is only removal of expired entries)
   ShapeMap map_;
   unsigned int clean_count_;
