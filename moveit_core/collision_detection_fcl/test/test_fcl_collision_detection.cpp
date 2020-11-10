@@ -484,23 +484,23 @@ TEST_F(FclCollisionDetectionTester, ConvertObjectToAttached)
   EXPECT_LT(fabs(first_check - second_check), .1);
 }
 
-TEST_F(FclCollisionDetectionTester, TestCollisionMapAdditionSpeed)
-{
-  EigenSTL::vector_Affine3d poses;
-  std::vector<shapes::ShapeConstPtr> shapes;
-  for (unsigned int i = 0; i < 10000; i++)
-  {
-    poses.push_back(Eigen::Affine3d::Identity());
-    shapes.push_back(shapes::ShapeConstPtr(new shapes::Box(.01, .01, .01)));
-  }
-  ros::WallTime start = ros::WallTime::now();
-  cworld_->getWorld()->addToObject("map", shapes, poses);
-  double t = (ros::WallTime::now() - start).toSec();
-  EXPECT_GE(1.0, t);
-  // this is not really a failure; it is just that slow;
-  // looking into doing collision checking with a voxel grid.
-  ROS_INFO_NAMED("collision_detection.fcl", "Adding boxes took %g", t);
-}
+// TEST_F(FclCollisionDetectionTester, TestCollisionMapAdditionSpeed)
+// {
+//   EigenSTL::vector_Affine3d poses;
+//   std::vector<shapes::ShapeConstPtr> shapes;
+//   for (unsigned int i = 0; i < 10000; i++)
+//   {
+//     poses.push_back(Eigen::Affine3d::Identity());
+//     shapes.push_back(shapes::ShapeConstPtr(new shapes::Box(.01, .01, .01)));
+//   }
+//   ros::WallTime start = ros::WallTime::now();
+//   cworld_->getWorld()->addToObject("map", shapes, poses);
+//   double t = (ros::WallTime::now() - start).toSec();
+//   EXPECT_GE(1.0, t);
+//   // this is not really a failure; it is just that slow;
+//   // looking into doing collision checking with a voxel grid.
+//   ROS_INFO_NAMED("collision_detection.fcl", "Adding boxes took %g", t);
+// }
 
 TEST_F(FclCollisionDetectionTester, MoveMesh)
 {
