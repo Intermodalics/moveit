@@ -638,110 +638,6 @@ FCLGeometryConstPtr createCollisionGeometry(const shapes::ShapeConstPtr& shape, 
   using ShapeKey = std::weak_ptr<const shapes::Shape>;
   using ShapeMap = std::map<ShapeKey, FCLGeometryConstPtr, std::owner_less<ShapeKey>>;
 
-  FCLShapeCache& cache = GetShapeCache<BV, T>();
-
-  std::weak_ptr<const shapes::Shape> wptr(shape);
-  {
-    boost::mutex::scoped_lock slock(cache.lock_);
-    ShapeMap::const_iterator cache_it = cache.map_.find(wptr);
-    if (cache_it != cache.map_.end())
-    {
-      if (cache_it->second->collision_geometry_data_->ptr.raw == data)
-      {
-        //        ROS_DEBUG_NAMED("collision_detection.fcl", "Collision data structures for object %s retrieved from
-        //        cache.",
-        //        cache_it->second->collision_geometry_data_->getID().c_str());
-        return cache_it->second;
-      }
-      else if (cache_it->second.unique())
-      {
-        const_cast<FCLGeometry*>(cache_it->second.get())->updateCollisionGeometryData(data, shape_index, false);
-        //          ROS_DEBUG_NAMED("collision_detection.fcl", "Collision data structures for object %s retrieved from
-        //          cache after updating
-        //          the source
-        //          object.", cache_it->second->collision_geometry_data_->getID().c_str());
-        return cache_it->second;
-      }
-    }
-  }
-
-  // attached objects could have previously been World::Object; we try to move them
-  // from their old cache to the new one, if possible. the code is not pretty, but should help
-  // when we attach/detach objects that are in the world
-  if (IfSameType<T, robot_state::AttachedBody>::value == 1)
-  {
-    // get the cache that corresponds to objects; maybe this attached object used to be a world object
-    FCLShapeCache& othercache = GetShapeCache<BV, World::Object>();
-
-    // attached bodies could be just moved from the environment.
-    othercache.lock_.lock();  // lock manually to avoid having 2 simultaneous locks active (avoids possible deadlock)
-    auto cache_it = othercache.map_.find(wptr);
-    if (cache_it != othercache.map_.end())
-    {
-      if (cache_it->second.unique())
-      {
-        // remove from old cache
-        FCLGeometryConstPtr obj_cache = cache_it->second;
-        othercache.map_.erase(cache_it);
-        othercache.lock_.unlock();
-
-        // update the CollisionGeometryData; nobody has a pointer to this, so we can safely modify it
-        const_cast<FCLGeometry*>(obj_cache.get())->updateCollisionGeometryData(data, shape_index, true);
-
-        //        ROS_DEBUG_NAMED("collision_detection.fcl", "Collision data structures for attached body %s retrieved
-        //        from the cache for
-        //        world objects.",
-        //        obj_cache->collision_geometry_data_->getID().c_str());
-
-        // add to the new cache
-        boost::mutex::scoped_lock slock(cache.lock_);
-        cache.map_[wptr] = obj_cache;
-        cache.bumpUseCount();
-        return obj_cache;
-      }
-    }
-    othercache.lock_.unlock();
-  }
-  else
-      // world objects could have previously been attached objects; we try to move them
-      // from their old cache to the new one, if possible. the code is not pretty, but should help
-      // when we attach/detach objects that are in the world
-      if (IfSameType<T, World::Object>::value == 1)
-  {
-    // get the cache that corresponds to objects; maybe this attached object used to be a world object
-    FCLShapeCache& othercache = GetShapeCache<BV, robot_state::AttachedBody>();
-
-    // attached bodies could be just moved from the environment.
-    othercache.lock_.lock();  // lock manually to avoid having 2 simultaneous locks active (avoids possible deadlock)
-    auto cache_it = othercache.map_.find(wptr);
-    if (cache_it != othercache.map_.end())
-    {
-      if (cache_it->second.unique())
-      {
-        // remove from old cache
-        FCLGeometryConstPtr obj_cache = cache_it->second;
-        othercache.map_.erase(cache_it);
-        othercache.lock_.unlock();
-
-        // update the CollisionGeometryData; nobody has a pointer to this, so we can safely modify it
-        const_cast<FCLGeometry*>(obj_cache.get())->updateCollisionGeometryData(data, shape_index, true);
-
-        //          ROS_DEBUG_NAMED("collision_detection.fcl", "Collision data structures for world object %s retrieved
-        //          from the cache for
-        //          attached
-        //          bodies.",
-        //                   obj_cache->collision_geometry_data_->getID().c_str());
-
-        // add to the new cache
-        boost::mutex::scoped_lock slock(cache.lock_);
-        cache.map_[wptr] = obj_cache;
-        cache.bumpUseCount();
-        return obj_cache;
-      }
-    }
-    othercache.lock_.unlock();
-  }
-
   fcl::CollisionGeometry* cg_g = nullptr;
   if (shape->type == shapes::PLANE)  // shapes that directly produce CollisionGeometry
   {
@@ -825,9 +721,6 @@ FCLGeometryConstPtr createCollisionGeometry(const shapes::ShapeConstPtr& shape, 
   {
     cg_g->computeLocalAABB();
     FCLGeometryConstPtr res(new FCLGeometry(cg_g, data, shape_index));
-    boost::mutex::scoped_lock slock(cache.lock_);
-    cache.map_[wptr] = res;
-    cache.bumpUseCount();
     return res;
   }
   return FCLGeometryConstPtr();
