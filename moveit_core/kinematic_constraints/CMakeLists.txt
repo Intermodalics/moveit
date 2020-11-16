@@ -4,7 +4,7 @@ add_compile_options(-Wno-cast-qual)  # suppress warning in tf/Vector3.h: https:/
 add_library(${MOVEIT_LIB_NAME}
   src/kinematic_constraint.cpp
   src/utils.cpp)
-set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
+
 
 target_link_libraries(${MOVEIT_LIB_NAME}
   moveit_robot_model moveit_kinematics_base moveit_robot_state moveit_collision_detection_fcl
