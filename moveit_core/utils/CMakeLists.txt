@@ -7,8 +7,6 @@ add_library(${MOVEIT_LIB_NAME}
 )
 add_dependencies(${MOVEIT_LIB_NAME} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${MOVEIT_LIB_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
-set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
-
 
 set(MOVEIT_TEST_LIB_NAME moveit_test_utils)
 add_library(${MOVEIT_TEST_LIB_NAME}

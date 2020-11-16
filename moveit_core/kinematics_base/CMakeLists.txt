@@ -1,7 +1,6 @@
 set(MOVEIT_LIB_NAME moveit_kinematics_base)
 
 add_library(${MOVEIT_LIB_NAME} src/kinematics_base.cpp)
-set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 
 if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   # Avoid warnings about deprecated members of KinematicsBase when building KinematicsBase itself.

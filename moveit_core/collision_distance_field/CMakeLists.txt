@@ -11,7 +11,6 @@ add_library(${MOVEIT_LIB_NAME}
   src/collision_env_distance_field.cpp
   src/collision_env_hybrid.cpp
 )
-set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 target_link_libraries(${MOVEIT_LIB_NAME}
   moveit_planning_scene moveit_distance_field
   ${catkin_LIBRARIES} ${Boost_LIBRARIES})
