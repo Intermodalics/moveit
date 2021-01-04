@@ -691,7 +691,8 @@ FCLGeometryConstPtr createCollisionGeometry(const shapes::ShapeConstPtr& shape, 
   using ShapeMap = std::map<ShapeKey, FCLGeometryConstPtr, std::owner_less<ShapeKey>>;
 
   fcl::CollisionGeometry* cg_g = nullptr;
-  if (shape->type == shapes::PLANE)  // shapes that directly produce CollisionGeometry
+  // Handle cases individually
+  switch (shape->type)
   {
     case shapes::PLANE:
     {
