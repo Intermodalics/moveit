@@ -146,6 +146,7 @@ CollisionEnvFCL::CollisionEnvFCL(const CollisionEnvFCL& other, const WorldPtr& w
 
   // request notifications about changes to new world
   observer_handle_ = getWorld()->addObserver(boost::bind(&CollisionEnvFCL::notifyObjectChange, this, _1, _2));
+  getWorld()->notifyObserverAllObjects(observer_handle_, World::CREATE);
 }
 
 void CollisionEnvFCL::getAttachedBodyObjects(const moveit::core::AttachedBody* ab,
